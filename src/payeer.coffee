@@ -32,13 +32,13 @@ export default class Payeer
       m_desc: new Buffer(params.m_desc).toString('base64')
 
     if @_onResult
-      params.m_result_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=result&secret=#{config.secretKey}"
+      params.m_result_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=result"
 
     if @_onCheck
-      params.m_check_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=check&secret=#{config.secretKey}"
+      params.m_check_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=check"
 
     if @_onFailure
-      params.m_failure_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=failure&secret=#{config.secretKey}"
+      params.m_failure_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=failure"
 
     if config.successUrl
       params.m_success_url = config.successUrl
