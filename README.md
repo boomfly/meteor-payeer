@@ -1,6 +1,6 @@
-# Meteor Paybox.money integration
+# Meteor Payeer integration
 
-Прием платежей через платежный шлюз Paybox.money для Meteor.js.
+Прием платежей через платежный шлюз Payeer для Meteor.js.
 
 ## Установка
 
@@ -13,13 +13,13 @@ meteor add boomfly:meteor-paybox
 ```coffeescript
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Paybox from 'meteor/boomfly:meteor-paybox'
+import Payeer from 'meteor/boomfly:meteor-payeer'
 
-Paybox.config
+Payeer.config
   secretKey: ''                   # Секретный ключ из настроек магазина
   merchantId: ''                  # Идентификатор продавца
   siteUrl: 'https://example.com'
-  currency: 'KZT'
+  currency: 'USD'
   testingMode: true               # Тестовый режим для отладки подключения
   debug: true
 
@@ -30,7 +30,7 @@ if Meteor.isServer
       params =
         pg_amount: amount
       try
-        response = Paybox.initPaymentSync params
+        response = Payeer.initPaymentSync params
       catch error
         response = error
       response
@@ -49,7 +49,7 @@ if Meteor.isClient
 
 ## API
 
-### Paybox.initPayment(params, callback)
+### Payeer.initPayment(params, callback)
 
 Инициализация платежа
 
@@ -57,28 +57,28 @@ if Meteor.isClient
 
 **callback** - Функция обработчик разультата, принимает 2 параметра (error, result)
 
-Доступна синхронная версия функции `Paybox.initPaymentSync` через [Meteor.wrapAsync](https://docs.meteor.com/api/core.html#Meteor-wrapAsync)
+Доступна синхронная версия функции `Payeer.initPaymentSync` через [Meteor.wrapAsync](https://docs.meteor.com/api/core.html#Meteor-wrapAsync)
 
 ## Events
 
-### Paybox.onResult(callback)
+### Payeer.onResult(callback)
 
 Обработка результата платежа
 
 **callback** - Функция обработки результата платежа, принимает 1 параметр (params). Полный список параметров на [странице](https://paybox.money/kz_ru/dev/payment-result)
 
-### Paybox.onCheck(callback)
+### Payeer.onCheck(callback)
 
 Проверка возможности совершения платежа
 
 **callback** - Функция проверки возможности совершения платежа, принимает 1 параметр (params). Полный список параметров на [странице](https://paybox.money/kz_ru/dev/payment-check)
 
-**return** - Функция должна вернуть объект с результатом проверки. Результат функции будет конвертирован в `xml` и отправлен ответом на запрос Paybox.
+**return** - Функция должна вернуть объект с результатом проверки. Результат функции будет конвертирован в `xml` и отправлен ответом на запрос Payeer.
 
 **пример**:
 
 ```coffeescript
-Paybox.onCheck (params) ->
+Payeer.onCheck (params) ->
   order = Order.findOne params.pg_order_id
   if not order
     pg_status: 'rejected'

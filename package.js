@@ -12,8 +12,10 @@ Package.onUse((api) => {
 
   api.use('underscore', 'server');
   api.use('ecmascript', ['server', 'client']);
-  api.use('coffeescript', ['server', 'client']);
+  api.use('coffeescript@2.0.2_1', ['server', 'client']);
   // api.imply('coffeescript', 'server');
+
+  api.addAssets('src/php.php', 'server');
 
   api.mainModule('src/payeer.coffee', 'server');
   api.mainModule('src/payment-form.coffee', 'client');
@@ -31,7 +33,7 @@ Package.onTest((api) => {
 // This lets you use npm packages in your package:
 Npm.depends({
   'sprintf-js': '1.1.1',
-  'xml-js': '1.5.2',
   'js2xml': '1.0.8',
-  'react': '16.0.0'
+  'react': '16.0.0',
+  'cryptian': '0.0.3'
 });

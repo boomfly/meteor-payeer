@@ -2,9 +2,9 @@ import { Meteor } from 'meteor/meteor'
 import { Random } from 'meteor/random'
 import { check, Match } from 'meteor/check'
 import { HTTP } from 'meteor/http'
+import querystring from 'querystring'
 
 import { sprintf } from 'sprintf-js'
-import convert from 'xml-js'
 import { Js2Xml } from 'js2xml'
 import requestIp from 'request-ip'
 
@@ -15,9 +15,9 @@ export default class Payeer
   @debug: true
 
   @config: (cfg) -> if cfg then _.extend(config, cfg) else _.extend({}, config)
-  @onResult: (cb) -> @_onResult = cb
-  @onCheck: (cb) -> @_onCheck = cb
-  @onFailure: (cb) -> @_onFailure = cb
+  @onSuccess: (cb) -> @_onSuccess = cb
+  @onStatus: (cb) -> @_onStatus = cb
+  @onFail: (cb) -> @_onFail = cb
 
   @call: (params, cb) ->
     # console.log config
@@ -31,14 +31,14 @@ export default class Payeer
       m_amount: sprintf("%01.2f", params.m_amount)
       m_desc: new Buffer(params.m_desc).toString('base64')
 
-    if @_onResult
+    if @_onSuccess
       params.m_result_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=result"
 
-    if @_onCheck
-      params.m_check_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=check"
+    if @_onStatus
+      params.m_status_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=status"
 
-    if @_onFailure
-      params.m_failure_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=failure"
+    if @_onFail
+      params.m_fail_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=failure"
 
     if config.successUrl
       params.m_success_url = config.successUrl
@@ -49,6 +49,31 @@ export default class Payeer
   Синхронная версия метода initPayment
   ###
   @initPaymentSync: Meteor.wrapAsync @initPayment, @
+
+  @getPaymentUrl: (params) ->
+    _.extend params,
+      m_amount: sprintf("%01.2f", params.m_amount)
+      m_desc: new Buffer(params.m_desc).toString('base64')
+      m_shop: config.merchantId
+    params.m_curr = config.currency unless params.m_curr
+
+    m_params = {}
+    if @_onSuccess
+      m_params.success_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=success"
+
+    if @_onStatus
+      m_params.status_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=status"
+
+    if @_onFail
+      m_params.fail_url = "#{config.siteUrl}/api/#{config.callbackScriptName}?action=fail"
+
+    # params.m_params = PGSignature.encodeParams params.m_orderid, m_params
+    params.m_cipher_method = 'AES-256-CBC'
+    params.m_sign = PGSignature.sign(params, config.secretKey)
+
+    query = querystring.stringify params
+
+    "https://payeer.com/merchant/?#{query}"
 
   @paymentSystemList: (params, cb) ->
     @call 'ps_list.php', params, cb
@@ -98,7 +123,7 @@ Meteor.startup ->
       if action is 'fail'
         if config.debug
           console.log 'Payeer.restRoute.fail'
-        return response = Payeer._onFailure?(params)
+        return response = Payeer._onFail?(params)
 
       if m_sign isnt PGSignature.sign(params, config.secretKey)
         return
@@ -109,9 +134,9 @@ Meteor.startup ->
 
       switch action
         when 'check'
-          response = Payeer._onCheck?(params)
+          response = Payeer._onStatus?(params)
         when 'success'
-          response = Payeer._onResult?(params)
+          response = Payeer._onSuccess?(params)
         else
           if config.debug
             console.log 'Unknown action', action, params
