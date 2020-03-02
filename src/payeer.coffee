@@ -5,10 +5,14 @@ import { HTTP } from 'meteor/http'
 import querystring from 'querystring'
 
 import { sprintf } from 'sprintf-js'
+import parser, { j2xParser } from 'fast-xml-parser'
 import requestIp from 'request-ip'
 
 import PGSignature from './signature'
 import config from './config'
+
+xmlHeader = '<?xml version="1.0"?>'
+js2xml = new j2xParser()
 
 export default class Payeer
   @debug: true
@@ -85,16 +89,17 @@ Rest = new Restivus
 
 responseXml = (params, context) ->
   params.pg_sig = PGSignature.make(config.callbackScriptName, params, config.secretKey)
+  body = js2xml.parse(request: params)
   if context
     context.writeHead 200,
       'Content-Type': 'application/xml'
-    context.write(new Js2Xml('request', params).toString())
+    context.write(body)
     context.done()
     return undefined
   else
     headers:
       'Content-Type': 'application/xml'
-    body: new Js2Xml('request', params).toString()
+    body: body
 
 # http://localhost:3200/api/paybox?action=result&amount=50&order_id=vYyioup4zJG9Tk5vd
 Meteor.startup ->
