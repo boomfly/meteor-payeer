@@ -3,7 +3,6 @@ import path from 'path'
 import crypto from 'crypto'
 import {sprintf} from 'sprintf-js'
 import config from './config'
-import Cryptian from 'cryptian'
 import { execSync } from 'child_process'
 
 export default class Signature

@@ -5,7 +5,6 @@ import { HTTP } from 'meteor/http'
 import querystring from 'querystring'
 
 import { sprintf } from 'sprintf-js'
-import { Js2Xml } from 'js2xml'
 import requestIp from 'request-ip'
 
 import PGSignature from './signature'

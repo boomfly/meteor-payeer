@@ -1,7 +1,7 @@
 Package.describe({
   // Short two-sentence summary
   summary: 'Meteor Payeer integration',
-  version: '0.1.0',
+  version: '0.1.1',
   name: 'boomfly:meteor-payeer',
   git: 'https://github.com/boomfly/meteor-payeer'
 });
@@ -18,7 +18,6 @@ Package.onUse((api) => {
   api.addAssets('src/php.php', 'server');
 
   api.mainModule('src/payeer.coffee', 'server');
-  api.mainModule('src/payment-form.coffee', 'client');
 });
 // This defines the tests for the package:
 Package.onTest((api) => {
@@ -33,7 +32,5 @@ Package.onTest((api) => {
 // This lets you use npm packages in your package:
 Npm.depends({
   'sprintf-js': '1.1.1',
-  'js2xml': '1.0.8',
-  'react': '16.0.0',
-  'cryptian': '0.0.3'
+  'js2xml': '1.0.9'
 });
